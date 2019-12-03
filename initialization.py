@@ -32,6 +32,12 @@ class VRP:
 
         return self.infoList.copy()
 
+    def getWeight(self, i1):
+        '''
+            Get weight of vehicle at index i1
+        '''
+        return self.infoList[i1][2]
+
     def calDist(self, i1, i2):
         '''
             Calculate distance between two customers having indices i1 and i2

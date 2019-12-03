@@ -1,4 +1,6 @@
 from initialization import VRP
+from searchSpace import SearchSpace
+
 import numpy as np
 import random
 
@@ -89,6 +91,35 @@ def swapReverse_neighborOps(arr):
     new_arr = np.concatenate((new_arr, np.copy(arr[e2+1:])))
 
     return new_arr
+
+
+class ABC:
+    def __init__(self, n, m, k, c, alpha, theta, employedBees, onlookers): # Is the number of employedBees equal k?
+        # The number of employed bees and the number of onlookers are set to be equal
+        # the number of food sources (set to 25 in the paper)
+        self.vrp = VRP(n,m,k)
+        self.searchSpace = SearchSpace(n,m,k,c,alpha,theta)
+        self.employedBees = employedBees
+        self.onlookers = onlookers
+        #self.cumulated_f = 0 # cumulated f at iteration t
+        self.listOfFoodSources = []
+
+    def probOfFoodSources(self):
+        '''
+            All of the probability of choosing a food source x
+        '''
+        listOfProbs = []
+        cumulated_f = 0
+        for i in range(k):
+            cost = self.searchSpace.costFunc(self.listOfFoodSources[i])
+            f = float(1.0/cost)
+            listOfProbs.append(f)
+            cumulated_f += f
+        listOfProbs[:] = [x/cumulated_f for x in listOfProbs]
+
+        return listOfProbs
+
+    
 
 # limit = 50n, m >= 3, (n+m) >= 7
 n = int(input('Enter n:'))
