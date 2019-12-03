@@ -2,6 +2,7 @@ from initialization import VRP
 from searchSpace import SearchSpace
 
 import numpy as np
+import pandas as pd
 import random
 
 '''def swapReverse_neighborOps(arr):
@@ -97,6 +98,7 @@ class ABC:
     def __init__(self, n, m, k, c, alpha, theta, employedBees, onlookers): # Is the number of employedBees equal k?
         # The number of employed bees and the number of onlookers are set to be equal
         # the number of food sources (set to 25 in the paper)
+        self.k = k
         self.vrp = VRP(n,m,k)
         self.searchSpace = SearchSpace(n,m,k,c,alpha,theta)
         self.employedBees = employedBees
@@ -110,14 +112,29 @@ class ABC:
         '''
         listOfProbs = []
         cumulated_f = 0
-        for i in range(k):
+        for i in range(self.k):
             cost = self.searchSpace.costFunc(self.listOfFoodSources[i])
             f = float(1.0/cost)
             listOfProbs.append(f)
             cumulated_f += f
         listOfProbs[:] = [x/cumulated_f for x in listOfProbs]
 
-        return listOfProbs
+        return listOfProbs.sort(reverse=True)
+
+    def rouletteWheel(self, listOfProbs):
+        selectionResults = [] # list of indices of food sources for corresponding onlookers
+        df = pd.DataFrame(np.array(listOfProbs), columns=["Index","Fitness"])
+        df['cum_sum'] = df.Fitness.cumsum() # cumulative sum
+        df['cum_perc'] = 100*df.cum_sum/df.Fitness.sum()
+
+        for i in range(self.k):
+            pick = 100*random.random()
+            for j in range(self.k):
+                if pick <= df.iat[j, 3]:
+                    selectionResults.append(j)
+                    break
+
+        return selectionResults
 
     
 
