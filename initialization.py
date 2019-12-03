@@ -26,7 +26,7 @@ class VRP:
         self.infoList.append((30, 40, 0)) # Depot information
         for line in lines:
             chars = line[:-1].split('\t')
-            print(chars)
+            #print(chars)
             info = (int(chars[1]), int(chars[2]), int(chars[3]))
             self.infoList.append(info)
 
@@ -38,10 +38,10 @@ class VRP:
         '''
         cust1 = self.infoList[i1]
         cust2 = self.infoList[i2]
-        print(cust1)
+        '''print(cust1)
         print(cust2)
         print((cust1[0] - cust2[0])**2)
-        print((cust1[1] - cust2[1])**2)
+        print((cust1[1] - cust2[1])**2)'''
         return sqrt((cust1[0] - cust2[0])**2 + (cust1[1] - cust2[1])**2)
 
     def initSols(self):
@@ -54,7 +54,7 @@ class VRP:
                 vehicleList.append([0])
                 distList.append([])
                 totalDistList.append(0)
-            print(vehicleList)
+            #print(vehicleList)
 
             remainedCust = list(range(0, self.n)) 
             for i in range(self.n):
