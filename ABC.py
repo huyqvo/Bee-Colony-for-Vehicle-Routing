@@ -6,6 +6,8 @@ import pandas as pd
 import random
 import operator
 
+import matplotlib.pyplot as plt
+
 '''def swapReverse_neighborOps(arr):
     while True:
         s1 = random.randint(0, arr.shape[0] - 4)
@@ -108,6 +110,34 @@ class ABC:
         #self.cumulated_f = 0 # cumulated f at iteration t
         self.listOfFoodSources = []
 
+    def visualize(self, solution):
+        infoList = self.vrp.getInfoList()
+
+        x = []
+        y = []
+        w = []
+
+        for info in infoList:
+            x.append(info[0])
+            y.append(info[1])
+            w.append(info[2])
+
+        plt.plot(x, y, 'ro')
+
+        l = solution.shape[0]
+        colo = ['b', 'g', 'r', 'c']
+        colo_index = -1
+        for i in range(l-1):
+            if solution[i] == 0:
+                colo_index += 1
+        
+            x1 = [infoList[solution[i]][0], infoList[solution[i+1]][0]]
+            y1 = [infoList[solution[i]][1], infoList[solution[i+1]][1]]
+            plt.plot(x1, y1, color=colo[colo_index], linestyle='-')
+
+        plt.axis([0,80,0,80])
+        plt.show()
+
     def calFitness(self, foodSource):
         cost = self.searchSpace.costFunc(foodSource)
         return float(1.0/cost)
@@ -147,11 +177,14 @@ class ABC:
 
         return selectionResults # list of onlookers' food source
 
-    def process(self, maxIteration, maxLimit):
+    def process(self, maxIteration, maxLimit): # Assume the number of employed bees is equal to the number of food sources
         #self.vrp.readData('./data/problem_8.txt')
         self.vrp.readData('D:\\Github\\Bee-Colony-for-Vehicle-Routing\\data\\problem_8.txt')
         self.listOfFoodSources = self.vrp.initSols()
-        listOfProbs = self.probOfFoodSources() # Not fitness but probability
+        print('[+] init')
+        for foodsource in self.listOfFoodSources:
+            print(foodsource)
+        print('[+] new')
         limits = [0] * self.k
         for itera in range(maxIteration):
             # (a)
@@ -168,10 +201,11 @@ class ABC:
             G = [[]] * self.k # list of neighbor sets of foodsource i 
 
             # (c)
+            listOfProbs = self.probOfFoodSources() # Not fitness but probability
             selection = self.rouletteWheel(listOfProbs)
             for index in selection:
                 x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index])
-                print(type(index))
+                #print(type(index))
                 #x_tilde = list(x_tilde)
                 #if G[index].get(x_tilde) == None:
                 G[index].append(x_tilde)
@@ -224,10 +258,12 @@ onlookers = k
 #VRPProb = VRP(n, m, k)
 abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers)
 
-listOfFoodSources = abc.process(25, 5)
+listOfFoodSources = abc.process(500, 10)
 
 for foodSource in listOfFoodSources:
     print(foodSource)
+
+abc.visualize(listOfFoodSources[2])
 '''VRPProb.readData('D:\\University\\Nam 4 HK 1\\Soft computing\\DoAn_CK\\code\\data\\Problem_8.txt')
 solList = VRPProb.initSols()
 

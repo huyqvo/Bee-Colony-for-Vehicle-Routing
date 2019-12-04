@@ -19,6 +19,9 @@ class VRP:
         self.k = k # The number of initial solutions
         self.infoList = [] # List of customers'information: list of tuple having 3 elements (x, y, q)
 
+    def getInfoList(self):
+        return self.infoList
+
     def readData(self, filepath):
         f = open(filepath, 'r')
         lines = f.readlines()
