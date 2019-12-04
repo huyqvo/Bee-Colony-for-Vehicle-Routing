@@ -83,6 +83,7 @@ def swapReverse_neighborOps(arr):
         print('Yeah 2')
         arr2 = np.flip(arr2)
 
+    # swap
     print(s1, ' ', e1, ' ', s2, ' ', e2)
     new_arr = np.empty(0, dtype=int)
     new_arr = np.concatenate((new_arr, np.copy(arr[0:s1])))
@@ -105,6 +106,10 @@ class ABC:
         self.onlookers = onlookers
         #self.cumulated_f = 0 # cumulated f at iteration t
         self.listOfFoodSources = []
+
+    def calFitness(self, foodSource):
+        cost = self.searchSpace.costFunc(foodSource)
+        return float(1.0/cost)
 
     def probOfFoodSources(self):
         '''
@@ -135,6 +140,28 @@ class ABC:
                     break
 
         return selectionResults
+
+    def process(self, maxIteration):
+        self.vrp.readData('./data/problem_8.txt')
+        self.litOfFoodSources = self.vrp.initSols()
+        listOfProbs = self.probOfFoodSources() # Not fitness but probability
+        limits = [0] * self.k
+        for itera in range(maxIteration):
+            # (a)
+            for (i, foodSource) in enumerate(self.listOfFoodSources):
+                # Apply a neigborhood operator
+                x_tilde = swapReverse_neighborOps(foodSource)
+                old_fit = self.calFitness(foodSource)
+                new_fit = self.calFitness(x_tilde)
+                # Replace
+                if new_fit > old_fit:
+                    self.listOfFoodSources[i] = x_tilde
+            
+            # (b)
+            G = [{}] * self.k # list of neighbor sets of foodsourcei 
+            
+
+
 
     
 
