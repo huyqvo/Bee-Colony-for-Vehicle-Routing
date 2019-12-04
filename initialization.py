@@ -50,43 +50,49 @@ class VRP:
         print((cust1[1] - cust2[1])**2)'''
         return sqrt((cust1[0] - cust2[0])**2 + (cust1[1] - cust2[1])**2)
 
+    def createRandomSol(self):
+        vehicleList = [] # List of vehicle routes, #vehicles = #routes. Don't have 0 at start and end. For saving index of customer
+        distList = [] # List of list of distances between 2 adjacent customer in a route
+        totalDistList = [] # List of distances of routes
+        for i in range(self.m):
+            vehicleList.append([0])
+            distList.append([])
+            totalDistList.append(0)
+        #print(vehicleList)
+
+        remainedCust = list(range(0, self.n))                           
+        for i in range(self.n):
+            custIndex = random.choice(remainedCust) # Chosen customer index
+            remainedCust.remove(custIndex)
+
+            # minimize distance
+            minDist = 999999
+            minIndex = self.m # storing index of vehicle route
+            for j in range(self.m):
+                lastCustIndex = vehicleList[j][len(vehicleList[j]) - 1]
+                curDist = self.calDist(custIndex, lastCustIndex)
+                if curDist < minDist:
+                    minDist = curDist
+                    minIndex = j
+
+            vehicleList[minIndex].append(custIndex+1)
+
+        # Make a representation vector
+        sol = []
+        for i in range(self.m):
+            sol.append(0)
+            cust_len = len(vehicleList[i])
+            for j in range(1, cust_len):
+                sol.append(vehicleList[i][j])
+        sol = np.asarray(sol)
+
+        return sol
+
+
     def initSols(self):
         solList = [] # list of representation vectors
         for k in range(self.k):
-            vehicleList = [] # List of vehicle routes, #vehicles = #routes. Don't have 0 at start and end. For saving index of customer
-            distList = [] # List of list of distances between 2 adjacent customer in a route
-            totalDistList = [] # List of distances of routes
-            for i in range(self.m):
-                vehicleList.append([0])
-                distList.append([])
-                totalDistList.append(0)
-            #print(vehicleList)
-
-            remainedCust = list(range(0, self.n)) 
-            for i in range(self.n):
-                custIndex = random.choice(remainedCust) # Chosen customer index
-                remainedCust.remove(custIndex)
-
-                # minimize distance
-                minDist = 999999
-                minIndex = self.m # storing index of vehicle route
-                for j in range(self.m):
-                    lastCustIndex = vehicleList[j][len(vehicleList[j]) - 1]
-                    curDist = self.calDist(custIndex, lastCustIndex)
-                    if curDist < minDist:
-                        minDist = curDist
-                        minIndex = j
-
-                vehicleList[minIndex].append(custIndex+1)
-
-            # Make a representation vector
-            sol = []
-            for i in range(self.m):
-                sol.append(0)
-                cust_len = len(vehicleList[i])
-                for j in range(1, cust_len):
-                    sol.append(vehicleList[i][j])
-            sol = np.asarray(sol)
+            sol = self.createRandomSol()
             solList.append(sol)
 
         return solList

@@ -15,19 +15,12 @@ class SearchSpace:
         self.vrp = VRP(n, m, k)
         self.vrp.readData('./data/problem_8.txt')
 
-    def costFunc(self, x): # x is a numpy array representing solution
-        # Distance
-        dist = 0 # total distance of all vehicles
+    def getViolationWeight(self, x):
         l = x.shape[0]
-        for i in range(l-1):
-            if x[i+1] == 0:
-                continue
-            dist += self.vrp.calDist(x[i], x[i+1])
-
         # Capacity violation
         weight = 0
         weightList = []
-        for i in range(1,l):
+        for i in range(1, l):
             if x[i] == 0:
                 weightList.append(weight)
                 weight = 0
@@ -38,6 +31,20 @@ class SearchSpace:
         for w in weightList:
             if w - self.c > 0:
                 violationWeight += w - self.c
+
+        return violationWeight
+
+
+    def costFunc(self, x): # x is a numpy array representing solution
+        # Distance
+        dist = 0 # total distance of all vehicles
+        l = x.shape[0]
+        for i in range(l-1):
+            if x[i+1] == 0:
+                continue
+            dist += self.vrp.calDist(x[i], x[i+1])
+
+        violationWeight = self.getViolationWeight(x)
 
         return dist + self.alpha*violationWeight
 

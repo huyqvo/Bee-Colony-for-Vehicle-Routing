@@ -139,11 +139,11 @@ class ABC:
                     selectionResults.append(j)
                     break
 
-        return selectionResults
+        return selectionResults # list of onlookers' food source
 
-    def process(self, maxIteration):
+    def process(self, maxIteration, maxLimit):
         self.vrp.readData('./data/problem_8.txt')
-        self.litOfFoodSources = self.vrp.initSols()
+        self.listOfFoodSources = self.vrp.initSols()
         listOfProbs = self.probOfFoodSources() # Not fitness but probability
         limits = [0] * self.k
         for itera in range(maxIteration):
@@ -158,18 +158,61 @@ class ABC:
                     self.listOfFoodSources[i] = x_tilde
             
             # (b)
-            G = [{}] * self.k # list of neighbor sets of foodsourcei 
+            G = [{}] * self.k # list of neighbor sets of foodsource i 
+
+            # (c)
+            selection = self.rouletteWheel(listOfProbs)
+            for index in selection:
+                x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index])
+                G[index].add(x_tilde)
+
+            # (d)
+            for (i, foodSource) in enumerate(self.listOfFoodSources):
+                if len(G[i]) != 0:
+                    maxFitness = -1
+                    maxNeighbor = -1
+                    for neighbor in G[i]: # neighbor is a numpy array of solution representation
+                        fit = self.calFitness(neighbor)
+                        if fit > maxFitness:
+                            maxFitness = fit
+                            maxNeighbor = neighbor
+                    if maxFitness > self.calFitness(foodSource):
+                        self.listOfFoodSources[i] = maxNeighbor
+                        limits[i] = 0
+                    else:
+                        limits[i] += 1
+
+            # (e)
+            for (i, foodSource) in enumerate(self.listOfFoodSources):
+                if limits[i] == maxLimit:
+                    self.listOfFoodSources[i] = self.vrp.createRandomSol()
+                    limits[i] = 0 # Paper don't have this?
+
+            # Update alpha
+            cnt = 0
+            for (i, foodSource) in enumerate(self.listOfFoodSources):
+                if self.searchSpace.getViolationWeight(foodSource) == 0:
+                    cnt += 1
+            if cnt > self.k/2:
+                self.searchSpace.updateAlpha(True) # divide
+            else:
+                self.searchSpace.updateAlpha(False) # multiply
             
 
-
-
-    
+        return self.listOfFoodSources
 
 # limit = 50n, m >= 3, (n+m) >= 7
+
 n = int(input('Enter n:'))
 m = int(input('Enter m:'))
-k = int(input('Enter k:'))
+k = int(input('Enter k:')) # k = 25
+c = int(input('Enter c:'))
+alpha = 0.1 # according to paper
+theta = 0.001 # according to the paper
+employedBees = k
+onlookers = k
 VRPProb = VRP(n, m, k)
+abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers)
 
 VRPProb.readData('D:\\University\\Nam 4 HK 1\\Soft computing\\DoAn_CK\\code\\data\\Problem_8.txt')
 solList = VRPProb.initSols()
