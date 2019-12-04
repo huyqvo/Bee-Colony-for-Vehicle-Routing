@@ -4,6 +4,7 @@ from searchSpace import SearchSpace
 import numpy as np
 import pandas as pd
 import random
+import operator
 
 '''def swapReverse_neighborOps(arr):
     while True:
@@ -76,15 +77,15 @@ def swapReverse_neighborOps(arr):
     prob2 = np.random.uniform()
     arr1 = np.copy(arr[s1:e1+1])
     if prob1 > 0.5:
-        print('Yeah 1')
+        #print('Yeah 1')
         arr1 = np.flip(arr1)
     arr2 = np.copy(arr[s2:e2+1])
     if prob2 > 0.5:
-        print('Yeah 2')
+        #print('Yeah 2')
         arr2 = np.flip(arr2)
 
     # swap
-    print(s1, ' ', e1, ' ', s2, ' ', e2)
+    #print(s1, ' ', e1, ' ', s2, ' ', e2)
     new_arr = np.empty(0, dtype=int)
     new_arr = np.concatenate((new_arr, np.copy(arr[0:s1])))
     new_arr = np.concatenate((new_arr, arr2))
@@ -124,7 +125,12 @@ class ABC:
             cumulated_f += f
         listOfProbs[:] = [x/cumulated_f for x in listOfProbs]
 
-        return listOfProbs.sort(reverse=True)
+        dictOfProbs = {}
+        for (i, prob) in enumerate(listOfProbs):
+            dictOfProbs[i] = prob
+
+        #return listOfProbs.sort(reverse=True)
+        return sorted(dictOfProbs.items(), key=operator.itemgetter(1), reverse=True)
 
     def rouletteWheel(self, listOfProbs):
         selectionResults = [] # list of indices of food sources for corresponding onlookers
@@ -142,7 +148,8 @@ class ABC:
         return selectionResults # list of onlookers' food source
 
     def process(self, maxIteration, maxLimit):
-        self.vrp.readData('./data/problem_8.txt')
+        #self.vrp.readData('./data/problem_8.txt')
+        self.vrp.readData('D:\\Github\\Bee-Colony-for-Vehicle-Routing\\data\\problem_8.txt')
         self.listOfFoodSources = self.vrp.initSols()
         listOfProbs = self.probOfFoodSources() # Not fitness but probability
         limits = [0] * self.k
@@ -158,13 +165,16 @@ class ABC:
                     self.listOfFoodSources[i] = x_tilde
             
             # (b)
-            G = [{}] * self.k # list of neighbor sets of foodsource i 
+            G = [[]] * self.k # list of neighbor sets of foodsource i 
 
             # (c)
             selection = self.rouletteWheel(listOfProbs)
             for index in selection:
                 x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index])
-                G[index].add(x_tilde)
+                print(type(index))
+                #x_tilde = list(x_tilde)
+                #if G[index].get(x_tilde) == None:
+                G[index].append(x_tilde)
 
             # (d)
             for (i, foodSource) in enumerate(self.listOfFoodSources):
@@ -211,12 +221,16 @@ alpha = 0.1 # according to paper
 theta = 0.001 # according to the paper
 employedBees = k
 onlookers = k
-VRPProb = VRP(n, m, k)
+#VRPProb = VRP(n, m, k)
 abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers)
 
-VRPProb.readData('D:\\University\\Nam 4 HK 1\\Soft computing\\DoAn_CK\\code\\data\\Problem_8.txt')
+listOfFoodSources = abc.process(25, 5)
+
+for foodSource in listOfFoodSources:
+    print(foodSource)
+'''VRPProb.readData('D:\\University\\Nam 4 HK 1\\Soft computing\\DoAn_CK\\code\\data\\Problem_8.txt')
 solList = VRPProb.initSols()
 
 for sol in solList:
     print('[+] normal: ', sol)
-    print('[+] swapReverse: ', swapReverse_neighborOps(sol))
+    print('[+] swapReverse: ', swapReverse_neighborOps(sol))'''
