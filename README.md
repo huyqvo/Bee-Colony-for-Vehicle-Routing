@@ -1,12 +1,24 @@
 # Bee-Colony-for-Vehicle-Routing
 **Artificial Bee Colony algorithm for Vehicle Routing Problem**
 
+---
+
+**Members**
+
+1612174 - Phùng Tiến Hào
+
+1612269 - Võ Quốc Huy
+
+---
+
 > Vehicle routing with two constraints: distance and customer demand (weight).
 
 ---
 
+**How to run**
 
 <div class="text-white bg-blue mb-2">
+  
 Run: python ABC.py
 
 Input n: the number of customers
