@@ -195,6 +195,7 @@ class ABC:
                 new_fit = self.calFitness(x_tilde)
                 # Replace
                 if new_fit > old_fit:
+                    print('yeah1')
                     self.listOfFoodSources[i] = x_tilde
             
             # (b)
@@ -221,26 +222,33 @@ class ABC:
                             maxFitness = fit
                             maxNeighbor = neighbor
                     if maxFitness > self.calFitness(foodSource):
+                        print('yeah2')
                         self.listOfFoodSources[i] = maxNeighbor
                         limits[i] = 0
                     else:
                         limits[i] += 1
 
+            for (i,foodsource) in enumerate(self.listOfFoodSources):
+                print('[+] fitness ' + str(i) + ': ', self.calFitness(foodsource))
+            '''for (i, foodsource) in enumerate(self.listOfFoodSources):
+                print('[+] foodsource ' + str(i) + ': ', foodsource)'''
+            print()
+
             # (e)
-            for (i, foodSource) in enumerate(self.listOfFoodSources):
+            '''for (i, foodSource) in enumerate(self.listOfFoodSources):
                 if limits[i] == maxLimit:
                     self.listOfFoodSources[i] = self.vrp.createRandomSol()
-                    limits[i] = 0 # Paper don't have this?
+                    limits[i] = 0 # Paper don't have this?'''
 
             # Update alpha
-            cnt = 0
+            '''cnt = 0
             for (i, foodSource) in enumerate(self.listOfFoodSources):
                 if self.searchSpace.getViolationWeight(foodSource) == 0:
                     cnt += 1
             if cnt > self.k/2:
                 self.searchSpace.updateAlpha(True) # divide
             else:
-                self.searchSpace.updateAlpha(False) # multiply
+                self.searchSpace.updateAlpha(False) # multiply'''
             
 
         return self.listOfFoodSources
@@ -258,7 +266,7 @@ onlookers = k
 #VRPProb = VRP(n, m, k)
 abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers)
 
-listOfFoodSources = abc.process(500, 10)
+listOfFoodSources = abc.process(5000, 10)
 
 for foodSource in listOfFoodSources:
     print(foodSource)
