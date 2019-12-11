@@ -7,6 +7,7 @@ import random
 import operator
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 '''def swapReverse_neighborOps(arr):
     while True:
@@ -39,6 +40,26 @@ import matplotlib.pyplot as plt
     new_arr = np.concatenate((new_arr, arr[e2+1:]))
 
     return new_arr'''
+
+def swap_ops(arr): 
+    '''
+        Random swap 2 elements in representation vector
+    '''
+    l = arr.shape[0]
+    while True:
+        ele1 = random.randint(1, l-1)
+        if arr[ele1] != 0:
+            break
+    while True:
+        ele2 = random.randint(1, l-1)
+        if arr[ele2] != 0 and ele2 != ele1:
+            break
+
+    ret = np.copy(arr)
+    ret[ele1], ret[ele2] = ret[ele2], ret[ele1]
+
+    return ret
+
 
 def swapReverse_neighborOps(arr):
     zero_pos = np.where(arr==0)[0]
@@ -122,6 +143,7 @@ class ABC:
             x.append(info[0])
             y.append(info[1])
             w.append(info[2])
+            plt.text(info[0], info[1]+1, str(info[2]), family="serif")
 
         plt.plot(x, y, 'ro')
         plt.plot(30, 40, 'mD', markersize=15)
@@ -139,6 +161,12 @@ class ABC:
         #plt.plot(30, 40, color=colo[colo_index], linestyle='-')
 
         plt.axis([0,80,0,80])
+        
+        red_patch = mpatches.Patch(color='red', label='The red data')
+        blue_patch = mpatches.Patch(color='blue', label='The blue data')
+        green_patch = mpatches.Patch(color='green', label='The green data')
+        plt.legend(handles=[red_patch, blue_patch, green_patch])
+
         plt.show()
 
     def calFitness(self, foodSource):
@@ -237,27 +265,31 @@ class ABC:
                     else:
                         limits[i] += 1
 
-            for (i,foodsource) in enumerate(self.listOfFoodSources):
-                print('[+] fitness ' + str(i) + ': ', self.calFitness(foodsource))
+            '''for (i,foodsource) in enumerate(self.listOfFoodSources):
+                print('[+] fitness ' + str(i) + ': ', self.calFitness(foodsource))'''
             '''for (i, foodsource) in enumerate(self.listOfFoodSources):
                 print('[+] foodsource ' + str(i) + ': ', foodsource)'''
-            print()
+            #print()
 
             # (e)
-            '''for (i, foodSource) in enumerate(self.listOfFoodSources):
+            for (i, foodSource) in enumerate(self.listOfFoodSources):       
                 if limits[i] == maxLimit:
-                    self.listOfFoodSources[i] = self.vrp.createRandomSol()
-                    limits[i] = 0 # Paper don't have this?'''
+                    muta_vec = swap_ops(self.listOfFoodSources[i])
+                    old_fit = self.calFitness(self.listOfFoodSources[i])
+                    new_fit = self.calFitness(muta_vec)
+                    if new_fit > old_fit:
+                        self.listOfFoodSources[i] = muta_vec
+                        limits[i] = 0 # Paper don't have this?
 
             # Update alpha
-            '''cnt = 0
+            cnt = 0
             for (i, foodSource) in enumerate(self.listOfFoodSources):
                 if self.searchSpace.getViolationWeight(foodSource) == 0:
                     cnt += 1
             if cnt > self.k/2:
                 self.searchSpace.updateAlpha(True) # divide
             else:
-                self.searchSpace.updateAlpha(False) # multiply'''
+                self.searchSpace.updateAlpha(False) # multiply
             
 
         return self.listOfFoodSources
@@ -275,12 +307,20 @@ onlookers = k
 #VRPProb = VRP(n, m, k)
 abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers)
 
-listOfFoodSources = abc.process(10000, 100)
+listOfFoodSources = abc.process(500, 50)
 
 for foodSource in listOfFoodSources:
     print(foodSource)
 
-abc.visualize(listOfFoodSources[2])
+chosenInd = 0
+maxVal = abc.calFitness(listOfFoodSources[chosenInd])
+for (i,foodsource) in enumerate(listOfFoodSources):
+    val = abc.calFitness(foodsource)
+    if val > maxVal:
+        chosenInd = i
+        maxVal = val
+
+abc.visualize(listOfFoodSources[chosenInd])
 '''VRPProb.readData('D:\\University\\Nam 4 HK 1\\Soft computing\\DoAn_CK\\code\\data\\Problem_8.txt')
 solList = VRPProb.initSols()
 
