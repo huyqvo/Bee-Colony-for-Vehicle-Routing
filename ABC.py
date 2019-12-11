@@ -123,6 +123,7 @@ class ABC:
             w.append(info[2])
 
         plt.plot(x, y, 'ro')
+        plt.plot(30, 40, 'wD')
 
         l = solution.shape[0]
         colo = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
@@ -134,6 +135,7 @@ class ABC:
             x1 = [infoList[solution[i]][0], infoList[solution[i+1]][0]]
             y1 = [infoList[solution[i]][1], infoList[solution[i+1]][1]]
             plt.plot(x1, y1, color=colo[colo_index], linestyle='-')
+        plt.plot(30, 40, color=colo[colo_index], linestyle='-')
 
         plt.axis([0,80,0,80])
         plt.show()
@@ -160,9 +162,13 @@ class ABC:
             dictOfProbs[i] = prob
 
         #return listOfProbs.sort(reverse=True)
-        return sorted(dictOfProbs.items(), key=operator.itemgetter(1), reverse=True)
+        #return sorted(dictOfProbs.items(), key=operator.itemgetter(1), reverse=True)
+        return dictOfProbs
 
     def rouletteWheel(self, listOfProbs):
+        sorted_ind = sorted(listOfProbs, key=listOfProbs.get, reverse = True)
+        #print(sorted_ind)
+        listOfProbs = sorted(listOfProbs.items(), key=operator.itemgetter(1), reverse=True)
         selectionResults = [] # list of indices of food sources for corresponding onlookers
         df = pd.DataFrame(np.array(listOfProbs), columns=["Index","Fitness"])
         df['cum_sum'] = df.Fitness.cumsum() # cumulative sum
@@ -174,7 +180,7 @@ class ABC:
             pick = 100*random.random()
             for j in range(self.k-1):
                 if pick <= df.iat[j, 3] and pick > df.iat[j+1,3]:
-                    selectionResults.append(j)
+                    selectionResults.append(sorted_ind[j])
                     break
 
         return selectionResults # list of onlookers' food source

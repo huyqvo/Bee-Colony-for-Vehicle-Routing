@@ -26,7 +26,7 @@ class VRP:
         f = open(filepath, 'r')
         lines = f.readlines()
 
-        self.infoList.append((30, 40, 0)) # Depot information
+        self.infoList.append((30, 40, 0)) # !! Depot information, default to (30, 40) !!
         for line in lines:
             chars = line[:-1].split('\t')
             #print(chars)
