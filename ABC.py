@@ -112,6 +112,7 @@ class ABC:
 
     def visualize(self, solution):
         infoList = self.vrp.getInfoList()
+        solution = np.append(solution, 0)
 
         x = []
         y = []
@@ -123,7 +124,7 @@ class ABC:
             w.append(info[2])
 
         plt.plot(x, y, 'ro')
-        plt.plot(30, 40, 'wD')
+        plt.plot(30, 40, 'mD', markersize=15)
 
         l = solution.shape[0]
         colo = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
@@ -135,7 +136,7 @@ class ABC:
             x1 = [infoList[solution[i]][0], infoList[solution[i+1]][0]]
             y1 = [infoList[solution[i]][1], infoList[solution[i+1]][1]]
             plt.plot(x1, y1, color=colo[colo_index], linestyle='-')
-        plt.plot(30, 40, color=colo[colo_index], linestyle='-')
+        #plt.plot(30, 40, color=colo[colo_index], linestyle='-')
 
         plt.axis([0,80,0,80])
         plt.show()
