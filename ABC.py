@@ -125,7 +125,7 @@ class ABC:
         plt.plot(x, y, 'ro')
 
         l = solution.shape[0]
-        colo = ['b', 'g', 'r', 'c']
+        colo = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
         colo_index = -1
         for i in range(l-1):
             if solution[i] == 0:
@@ -168,10 +168,12 @@ class ABC:
         df['cum_sum'] = df.Fitness.cumsum() # cumulative sum
         df['cum_perc'] = 100*df.cum_sum/df.Fitness.sum()
 
-        for i in range(self.k):
+        for i in range(2):
+            selectionResults.append(i)
+        for i in range(self.k-2):
             pick = 100*random.random()
-            for j in range(self.k):
-                if pick <= df.iat[j, 3]:
+            for j in range(self.k-1):
+                if pick <= df.iat[j, 3] and pick > df.iat[j+1,3]:
                     selectionResults.append(j)
                     break
 
@@ -195,7 +197,7 @@ class ABC:
                 new_fit = self.calFitness(x_tilde)
                 # Replace
                 if new_fit > old_fit:
-                    print('yeah1')
+                    #print('yeah1')
                     self.listOfFoodSources[i] = x_tilde
             
             # (b)
@@ -222,7 +224,7 @@ class ABC:
                             maxFitness = fit
                             maxNeighbor = neighbor
                     if maxFitness > self.calFitness(foodSource):
-                        print('yeah2')
+                        #print('yeah2')
                         self.listOfFoodSources[i] = maxNeighbor
                         limits[i] = 0
                     else:
@@ -266,7 +268,7 @@ onlookers = k
 #VRPProb = VRP(n, m, k)
 abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers)
 
-listOfFoodSources = abc.process(5000, 10)
+listOfFoodSources = abc.process(10000, 100)
 
 for foodSource in listOfFoodSources:
     print(foodSource)
