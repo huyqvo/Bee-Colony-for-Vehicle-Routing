@@ -162,10 +162,23 @@ class ABC:
 
         plt.axis([0,80,0,80])
         
-        red_patch = mpatches.Patch(color='red', label='The red data')
+        # ------ Visualize distance on legend ------
+
+        colo = ['blue', 'green', 'red', 'cyan', 'magenta', 'yellow', 'black', 'white']
+        listOfDists = self.searchSpace.calPathLengths(solution)
+        vehicle_n = len(listOfDists)
+        listOfPatches = []
+
+        for i in range(vehicle_n):
+            patch = mpatches.Patch(color=colo[i], label='Path length = '+str(listOfDists[i]))
+            listOfPatches.append(patch)
+
+        '''red_patch = mpatches.Patch(color='red', label='The red data')
         blue_patch = mpatches.Patch(color='blue', label='The blue data')
         green_patch = mpatches.Patch(color='green', label='The green data')
-        plt.legend(handles=[red_patch, blue_patch, green_patch])
+        plt.legend(handles=[red_patch, blue_patch, green_patch])'''
+
+        plt.legend(handles=listOfPatches)
 
         plt.show()
 
@@ -307,7 +320,7 @@ onlookers = k
 #VRPProb = VRP(n, m, k)
 abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers)
 
-listOfFoodSources = abc.process(500, 50)
+listOfFoodSources = abc.process(20000, 50)
 
 for foodSource in listOfFoodSources:
     print(foodSource)

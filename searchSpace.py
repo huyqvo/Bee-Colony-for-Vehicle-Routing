@@ -20,7 +20,7 @@ class SearchSpace:
         # Capacity violation
         weight = 0
         weightList = []
-        for i in range(1, l):
+        for i in range(1, l):               
             if x[i] == 0:
                 weightList.append(weight)
                 weight = 0
@@ -34,15 +34,28 @@ class SearchSpace:
 
         return violationWeight
 
+    def calPathLengths(self, x): # x is a numpy array representing solution, !! this x has to have 0 at the end !!
+        ret = []
+        l = x.shape[0]
+        dist = 0
+        for i in range(0, l-1):
+            if x[i] == 0 and i != 0:
+                ret.append(dist)
+                dist = 0
+            dist += self.vrp.calDist(x[i], x[i+1])
+        ret.append(dist)
+
+        return ret
 
     def costFunc(self, x): # x is a numpy array representing solution
         # Distance
         dist = 0 # total distance of all vehicles
         l = x.shape[0]
         for i in range(l-1):
-            if x[i+1] == 0:
-                continue
+            '''if x[i+1] == 0:
+                continue'''
             dist += self.vrp.calDist(x[i], x[i+1])
+        dist += self.vrp.calDist(x[l-1], 0)
 
         violationWeight = self.getViolationWeight(x)
 
