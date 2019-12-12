@@ -124,6 +124,8 @@ class ABC:
         # The number of employed bees and the number of onlookers are set to be equal
         # the number of food sources (set to 25 in the paper)
         self.k = k
+        self.n = n
+        self.m = m
         self.vrp = VRP(n,m,k)
         self.searchSpace = SearchSpace(n,m,k,c,alpha,theta)
         self.employedBees = employedBees
@@ -180,7 +182,38 @@ class ABC:
 
         plt.legend(handles=listOfPatches)
 
-        plt.show()
+        print('BBOX')
+        plt.savefig('./images/output.png', bbox_inches='tight')
+        #plt.show()
+
+    def breed(self, x, y):
+        ret = np.empty(0, dtype=int)
+        l = x.shape[0]
+        listOfNewPaths = [[]*self.m]
+
+        # Find 2 shortest edges in x and y
+
+        # Delete these 2 edges from x and y
+
+        # Get set of edges from x and y
+        x_edges = [] # list of tuples
+        y_edges = []
+        x_dists = []
+        y_dists = []
+
+        for i in range(l-1):
+            if x[i+1] == 0:
+                continue
+            x_edges.append((x[i], x[i+1]))
+            x_dists.append(self.vrp.calDist(x[i], x[i+1]))
+        
+        for i in range(l-1):
+            if y[i+1] == 0:
+                continue
+            y_edges.append((y[i], y[i+1]))
+            y_dists.append(self.vrp.calDist(y[i], y[i+1]))
+
+
 
     def calFitness(self, foodSource):
         cost = self.searchSpace.costFunc(foodSource)
@@ -216,9 +249,9 @@ class ABC:
         df['cum_sum'] = df.Fitness.cumsum() # cumulative sum
         df['cum_perc'] = 100*df.cum_sum/df.Fitness.sum()
 
-        for i in range(2):
-            selectionResults.append(i)
-        for i in range(self.k-2):
+        for i in range(3):
+            selectionResults.append(sorted_ind[i])
+        for i in range(self.k-3):
             pick = 100*random.random()
             for j in range(self.k-1):
                 if pick <= df.iat[j, 3] and pick > df.iat[j+1,3]:
@@ -228,8 +261,8 @@ class ABC:
         return selectionResults # list of onlookers' food source
 
     def process(self, maxIteration, maxLimit): # Assume the number of employed bees is equal to the number of food sources
-        #self.vrp.readData('./data/problem_8.txt')
-        self.vrp.readData('D:\\Github\\Bee-Colony-for-Vehicle-Routing\\data\\problem_8.txt')
+        self.vrp.readData('./data/problem_8.txt')
+        #self.vrp.readData('D:\\Github\\Bee-Colony-for-Vehicle-Routing\\data\\problem_8.txt')
         self.listOfFoodSources = self.vrp.initSols()
         print('[+] init')
         for foodsource in self.listOfFoodSources:
@@ -237,6 +270,7 @@ class ABC:
         print('[+] new')
         limits = [0] * self.k
         for itera in range(maxIteration):
+            #print('[+] Iteration: ', str(itera))
             # (a)
             for (i, foodSource) in enumerate(self.listOfFoodSources):
                 # Apply a neigborhood operator
@@ -313,6 +347,9 @@ n = int(input('Enter n:'))
 m = int(input('Enter m:'))
 k = int(input('Enter k:')) # k = 25
 c = int(input('Enter c:'))
+loop = int(input('Enter loop:'))
+maxlimit = int(input('Enter limit:'))
+
 alpha = 0.1 # according to paper
 theta = 0.001 # according to the paper
 employedBees = k
@@ -320,7 +357,7 @@ onlookers = k
 #VRPProb = VRP(n, m, k)
 abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers)
 
-listOfFoodSources = abc.process(20000, 50)
+listOfFoodSources = abc.process(loop, maxlimit)
 
 for foodSource in listOfFoodSources:
     print(foodSource)
