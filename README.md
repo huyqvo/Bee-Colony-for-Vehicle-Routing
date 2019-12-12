@@ -28,6 +28,10 @@ Input m: the number of vehicles
 Input k: the number of output solutions
 
 Input c: the capacity of each vehicle
+
+Input loop: the number of iterations
+
+Input limit: set limit for step (e)
 </div>
   
 ---
