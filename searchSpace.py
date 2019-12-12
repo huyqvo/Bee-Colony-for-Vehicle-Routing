@@ -74,7 +74,8 @@ class SearchSpace:
 
         violationWeight = self.getViolationWeight(x)
 
-        return dist + self.alpha*violationWeight + 0.02*diff
+        return dist + self.alpha*violationWeight + 0.1*diff
+        #return dist + self.alpha*violationWeight
         
 
     def updateAlpha(self, divOrMul):
