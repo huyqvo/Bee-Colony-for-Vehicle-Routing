@@ -21,17 +21,19 @@
   
 Run: python ABC.py
 
-Input n: the number of customers
+-Input n: the number of customers
 
-Input m: the number of vehicles
+-Input m: the number of vehicles
 
-Input k: the number of output solutions
+-Input k: the number of output solutions
 
-Input c: the capacity of each vehicle
+-Input c: the capacity of each vehicle
 
-Input loop: the number of iterations
+-Input loop: the number of iterations
 
-Input limit: set limit for step (e)
+-Input limit: set limit for step (e)
+
+-Input dataset path: path to dataset file
 </div>
   
 ---
