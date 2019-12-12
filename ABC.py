@@ -114,6 +114,11 @@ class ABC:
             patch = mpatches.Patch(color=tuple(colors[i % len(colors)]), label='Path length = '+str(listOfDists[i]))
             listOfPatches.append(patch)
 
+        # Add legend for depot
+        mag_diamond = plt.Line2D([], [], color='magenta', marker='D', linestyle='None',
+                          markersize=10, label='Depot')
+        listOfPatches.append(mag_diamond)
+        
         '''red_patch = mpatches.Patch(color='red', label='The red data')
         blue_patch = mpatches.Patch(color='blue', label='The blue data')
         green_patch = mpatches.Patch(color='green', label='The green data')
@@ -126,7 +131,7 @@ class ABC:
         fig.set_size_inches(18.5, 10.5)
         plt.savefig('./images/output.png', dpi=100)
         plt.show()
-
+        
     '''def breed(self, x, y):
         ret = np.empty(0, dtype=int)
         l = x.shape[0]
@@ -267,6 +272,8 @@ class ABC:
                         if self.calFitness(self.listOfFoodSources[max_j]) < maxFitness:
                             self.listOfFoodSources[max_j] = maxNeighbor
                             limits[i] = 0
+                        else:
+                            limits[i] += 1
                     else:
                         limits[i] += 1
 
