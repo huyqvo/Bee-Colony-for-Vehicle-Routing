@@ -2,7 +2,7 @@ import numpy as np
 from initialization import VRP
 
 class SearchSpace:
-    def __init__(self, n, m, k, c, alpha, theta): 
+    def __init__(self, n, m, k, c, alpha, theta, input_file): 
         '''
             n: so luong khach hang
             m: so luong phuong tien van chuyen 
@@ -13,7 +13,7 @@ class SearchSpace:
         self.theta = float(theta) # divided by
         self.c = c
         self.vrp = VRP(n, m, k)
-        self.vrp.readData('./data/problem_8.txt')
+        self.vrp.readData(input_file)
 
     def getViolationWeight(self, x):
         l = x.shape[0]

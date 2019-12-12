@@ -8,6 +8,7 @@ import operator
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import argparse
 
 '''def swapReverse_neighborOps(arr):
     while True:
@@ -120,12 +121,12 @@ def swapReverse_neighborOps(arr):
 
 
 class ABC:
-    def __init__(self, n, m, k, c, alpha, theta, employedBees, onlookers): # Is the number of employedBees equal k?
+    def __init__(self, n, m, k, c, alpha, theta, employedBees, onlookers, input_file): # Is the number of employedBees equal k?
         # The number of employed bees and the number of onlookers are set to be equal
         # the number of food sources (set to 25 in the paper)
         self.k = k
         self.vrp = VRP(n,m,k)
-        self.searchSpace = SearchSpace(n,m,k,c,alpha,theta)
+        self.searchSpace = SearchSpace(n,m,k,c,alpha,theta, input_file)
         self.employedBees = employedBees
         self.onlookers = onlookers
         #self.cumulated_f = 0 # cumulated f at iteration t
@@ -149,28 +150,38 @@ class ABC:
         plt.plot(30, 40, 'mD', markersize=15)
 
         l = solution.shape[0]
-        colo = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
+        # colo = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
         colo_index = -1
+
+        color_palette = "rainbow" # More colormap instances: https://matplotlib.org/gallery/color/colormap_reference.html
+        palette_samples = self.vrp.m # Number of palette samples are equal to #vehicles
+
+        try:
+            colors = np.array(plt.get_cmap(color_palette).colors)[:, ::-1].tolist()
+        except AttributeError:  # if palette has not pre-defined colors
+            colors = np.array(plt.get_cmap(color_palette)(np.linspace(0, 1, palette_samples)))[:, -2::-1].tolist()
+        
         for i in range(l-1):
             if solution[i] == 0:
                 colo_index += 1
         
             x1 = [infoList[solution[i]][0], infoList[solution[i+1]][0]]
             y1 = [infoList[solution[i]][1], infoList[solution[i+1]][1]]
-            plt.plot(x1, y1, color=colo[colo_index], linestyle='-')
+            plt.plot(x1, y1, color=tuple(colors[colo_index % len(colors)]), linestyle='-')
+        
         #plt.plot(30, 40, color=colo[colo_index], linestyle='-')
 
         plt.axis([0,80,0,80])
         
         # ------ Visualize distance on legend ------
 
-        colo = ['blue', 'green', 'red', 'cyan', 'magenta', 'yellow', 'black', 'white']
+        # colo = ['blue', 'green', 'red', 'cyan', 'magenta', 'yellow', 'black', 'whit
         listOfDists = self.searchSpace.calPathLengths(solution)
         vehicle_n = len(listOfDists)
         listOfPatches = []
 
         for i in range(vehicle_n):
-            patch = mpatches.Patch(color=colo[i], label='Path length = '+str(listOfDists[i]))
+            patch = mpatches.Patch(color=tuple(colors[i % len(colors)]), label='Path length = '+str(listOfDists[i]))
             listOfPatches.append(patch)
 
         '''red_patch = mpatches.Patch(color='red', label='The red data')
@@ -227,14 +238,15 @@ class ABC:
 
         return selectionResults # list of onlookers' food source
 
-    def process(self, maxIteration, maxLimit): # Assume the number of employed bees is equal to the number of food sources
+    def process(self, maxIteration, maxLimit, input_file): 
+        # Assume the number of employed bees is equal to the number of food sources
         #self.vrp.readData('./data/problem_8.txt')
-        self.vrp.readData('D:\\Github\\Bee-Colony-for-Vehicle-Routing\\data\\problem_8.txt')
+        self.vrp.readData(input_file)
         self.listOfFoodSources = self.vrp.initSols()
-        print('[+] init')
+        print('[+] Initial solution')
         for foodsource in self.listOfFoodSources:
             print(foodsource)
-        print('[+] new')
+        print('[+] Final solution')
         limits = [0] * self.k
         for itera in range(maxIteration):
             # (a)
@@ -307,36 +319,73 @@ class ABC:
 
         return self.listOfFoodSources
 
-# limit = 50n, m >= 3, (n+m) >= 7
+def ParseArguments():
+    parser = argparse.ArgumentParser(description="Bee colony algorithm for Vehicle Routing Problem")
+    parser.add_argument('-f', "--input_file", type=str,
+                        help="Input file")
+    parser.add_argument('-n', "--num_customers", type=int, 
+                        default=50, help="Number of customers")
+    parser.add_argument('-m', "--num_vehicles", type=int, 
+                        default=3, help="Number of vehicles")
+    parser.add_argument('-k', "--num_solutions", type=int, 
+                        default=25, help="Number of solution (food sources)")
+    parser.add_argument('-c', "--capacity", type=float, 
+                        default=1000.0, help="Vehicle capacity")
+    parser.add_argument('-al', "--alpha", type=float, 
+                        default=0.1, help="Alpha")
+    parser.add_argument('-the', "--theta", type=float, 
+                        default=0.001, help="Theta")
+    parser.add_argument('-emp', "--num_employedBees", type=int, 
+                        default=0, help="Number of employed bees (Equal to k according to paper)")
+    parser.add_argument('-onl', "--num_onlookers", type=int, 
+                        default=0, help="Number of onlookers (Equal to k according to paper)")
+    parser.add_argument('-iter', "--max_iteration", type=int, 
+                        default=20000, help="Maximum iteration")
+    parser.add_argument('-lim', "--limit", type=int, 
+                        default=0, help="Limit (~50n according to paper)")
+    
+    return parser.parse_args()
+    
+def main(args):
+    # limit = 50n, m >= 3, (n+m) >= 7
+    n = args.num_customers
+    m = args.num_vehicles
+    k = args.num_solutions # k = 25
+    c = args.capacity
+    alpha = args.alpha # according to paper
+    theta = args.theta # according to the paper
+    
+    if args.num_employedBees == 0:
+        employedBees = k
+    if args.num_onlookers == 0:
+        onlookers = k
 
-n = int(input('Enter n:'))
-m = int(input('Enter m:'))
-k = int(input('Enter k:')) # k = 25
-c = int(input('Enter c:'))
-alpha = 0.1 # according to paper
-theta = 0.001 # according to the paper
-employedBees = k
-onlookers = k
-#VRPProb = VRP(n, m, k)
-abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers)
+    #VRPProb = VRP(n, m, k)
+    abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers, args.input_file)
 
-listOfFoodSources = abc.process(20000, 50)
+    listOfFoodSources = abc.process(args.max_iteration, args.limit, args.input_file)
+    
+    for foodSource in listOfFoodSources:
+        print(foodSource)
 
-for foodSource in listOfFoodSources:
-    print(foodSource)
+    chosenInd = 0
+    maxVal = abc.calFitness(listOfFoodSources[chosenInd])
+    for (i,foodsource) in enumerate(listOfFoodSources):
+        val = abc.calFitness(foodsource)
+        if val > maxVal:
+            chosenInd = i
+            maxVal = val
 
-chosenInd = 0
-maxVal = abc.calFitness(listOfFoodSources[chosenInd])
-for (i,foodsource) in enumerate(listOfFoodSources):
-    val = abc.calFitness(foodsource)
-    if val > maxVal:
-        chosenInd = i
-        maxVal = val
+    abc.visualize(listOfFoodSources[chosenInd])
+    '''VRPProb.readData('D:\\University\\Nam 4 HK 1\\Soft computing\\DoAn_CK\\code\\data\\Problem_8.txt')
+    solList = VRPProb.initSols()
 
-abc.visualize(listOfFoodSources[chosenInd])
-'''VRPProb.readData('D:\\University\\Nam 4 HK 1\\Soft computing\\DoAn_CK\\code\\data\\Problem_8.txt')
-solList = VRPProb.initSols()
+    for sol in solList:
+        print('[+] normal: ', sol)
+        print('[+] swapReverse: ', swapReverse_neighborOps(sol))'''
 
-for sol in solList:
-    print('[+] normal: ', sol)
-    print('[+] swapReverse: ', swapReverse_neighborOps(sol))'''
+# Parse Args
+args = ParseArguments()
+
+if __name__ == "__main__":
+    main(args)
