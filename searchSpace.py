@@ -51,15 +51,31 @@ class SearchSpace:
         # Distance
         dist = 0 # total distance of all vehicles
         l = x.shape[0]
+        listOfDists = []
+        d = 0
+
         for i in range(l-1):
-            '''if x[i+1] == 0:
-                continue'''
-            dist += self.vrp.calDist(x[i], x[i+1])
+            calDist = self.vrp.calDist(x[i], x[i+1])
+            if i != 0 and x[i] == 0:
+                listOfDists.append(d)
+                d = 0
+            d += calDist
+            dist += calDist
+        listOfDists.append(d)
+        if x[l-1] == 0:
+            listOfDists.append(0)
         dist += self.vrp.calDist(x[l-1], 0)
+
+        diff = 0
+        l2 = len(listOfDists)
+        for i in range(l2-1):
+            for j in range(i+1,l2):
+                diff += abs(listOfDists[j] - listOfDists[i])
 
         violationWeight = self.getViolationWeight(x)
 
-        return dist + self.alpha*violationWeight
+        return dist + self.alpha*violationWeight + 0.1*diff
+        #return dist + self.alpha*violationWeight
         
 
     def updateAlpha(self, divOrMul):

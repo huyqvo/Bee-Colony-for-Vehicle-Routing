@@ -21,13 +21,19 @@
   
 Run: python ABC.py
 
-Input n: the number of customers
+-Input n: the number of customers
 
-Input m: the number of vehicles
+-Input m: the number of vehicles
 
-Input k: the number of output solutions
+-Input k: the number of output solutions
 
-Input c: the capacity of each vehicle
+-Input c: the capacity of each vehicle
+
+-Input loop: the number of iterations
+
+-Input limit: set limit for step (e)
+
+-Input dataset path: path to dataset file
 </div>
   
 ---
@@ -40,13 +46,13 @@ Problem 8 and problem 9 in [2]
 
 **Results**
 
-- 5000 iterations
+- Parameter set 1
 
-![](images/5000_iterations.png)
+![](images/50_5_10_8000_50000_50.png)
 
-- 10000 iterations
+- Parameter set 2
 
-![](images/10000_iterations.png)
+![](images/50_5_20_8000_50000_50_0.1diff.png)
 
 
 **References**

@@ -1,9 +1,14 @@
+from numpy.random import seed
+seed(1)
+import random
+random.seed(2)
+
 from initialization import VRP
 from searchSpace import SearchSpace
+from swapOps import swap_ops,swapReverse_neighborOps
 
 import numpy as np
 import pandas as pd
-import random
 import operator
 
 import matplotlib.pyplot as plt
@@ -42,89 +47,14 @@ import argparse
 
     return new_arr'''
 
-def swap_ops(arr): 
-    '''
-        Random swap 2 elements in representation vector
-    '''
-    l = arr.shape[0]
-    while True:
-        ele1 = random.randint(1, l-1)
-        if arr[ele1] != 0:
-            break
-    while True:
-        ele2 = random.randint(1, l-1)
-        if arr[ele2] != 0 and ele2 != ele1:
-            break
-
-    ret = np.copy(arr)
-    ret[ele1], ret[ele2] = ret[ele2], ret[ele1]
-
-    return ret
-
-
-def swapReverse_neighborOps(arr):
-    zero_pos = np.where(arr==0)[0]
-    zero_pos = zero_pos[1:]
-    zero_pos = zero_pos.reshape(m-1)
-    zero_n = np.random.choice(zero_pos, 2, replace=False)
-    if zero_n[0] > zero_n[1]:
-        zero_n[0], zero_n[1] = zero_n[1], zero_n[0]
-
-    pos1 = np.where(zero_pos == zero_n[0])[0]
-    pos2 = np.where(zero_pos == zero_n[1])[0]
-
-    # First subsequence
-    s = 2
-    if pos1-1 >= 0:
-        s = zero_pos[pos1-1] + 1
-    e = 2
-    if zero_n[0] - 1 >= 2:
-        e = zero_n[0] - 1
-    s1 = random.randint(s, e)
-    e1 = random.randint(zero_n[0]+1, zero_pos[pos1+1]-1)
-
-    # Second subsequence
-    s = zero_pos[pos2-1]+1
-    if s <= e1:     
-        s = e1+1
-    e = s
-    if zero_n[1] - 1 >= s:
-        e = zero_n[1] - 1
-    s2 = random.randint(s, e)
-    e = arr.shape[0]-1
-    if pos2+1 < zero_pos.shape[0]:
-        e = zero_pos[pos2+1] - 1
-    e2 = random.randint(zero_n[1]+1, e)
-
-    # copy 
-    prob1 = np.random.uniform()
-    prob2 = np.random.uniform()
-    arr1 = np.copy(arr[s1:e1+1])
-    if prob1 > 0.5:
-        #print('Yeah 1')
-        arr1 = np.flip(arr1)
-    arr2 = np.copy(arr[s2:e2+1])
-    if prob2 > 0.5:
-        #print('Yeah 2')
-        arr2 = np.flip(arr2)
-
-    # swap
-    #print(s1, ' ', e1, ' ', s2, ' ', e2)
-    new_arr = np.empty(0, dtype=int)
-    new_arr = np.concatenate((new_arr, np.copy(arr[0:s1])))
-    new_arr = np.concatenate((new_arr, arr2))
-    new_arr = np.concatenate((new_arr, np.copy(arr[e1+1:s2])))
-    new_arr = np.concatenate((new_arr, arr1))
-    new_arr = np.concatenate((new_arr, np.copy(arr[e2+1:])))
-
-    return new_arr
-
 
 class ABC:
     def __init__(self, n, m, k, c, alpha, theta, employedBees, onlookers, input_file): # Is the number of employedBees equal k?
         # The number of employed bees and the number of onlookers are set to be equal
         # the number of food sources (set to 25 in the paper)
         self.k = k
+        self.n = n
+        self.m = m
         self.vrp = VRP(n,m,k)
         self.searchSpace = SearchSpace(n,m,k,c,alpha,theta, input_file)
         self.employedBees = employedBees
@@ -189,9 +119,42 @@ class ABC:
         green_patch = mpatches.Patch(color='green', label='The green data')
         plt.legend(handles=[red_patch, blue_patch, green_patch])'''
 
-        plt.legend(handles=listOfPatches)
+        plt.legend(handles=listOfPatches, loc=1)
 
+        print('Saved image')
+        fig = plt.gcf()
+        fig.set_size_inches(18.5, 10.5)
+        plt.savefig('./images/output.png', dpi=100)
         plt.show()
+
+    '''def breed(self, x, y):
+        ret = np.empty(0, dtype=int)
+        l = x.shape[0]
+        listOfNewPaths = [[]*self.m]
+
+        # Find 2 shortest edges in x and y
+
+        # Delete these 2 edges from x and y
+
+        # Get set of edges from x and y
+        x_edges = [] # list of tuples
+        y_edges = []
+        x_dists = []
+        y_dists = []
+
+        for i in range(l-1):
+            if x[i+1] == 0:
+                continue
+            x_edges.append((x[i], x[i+1]))
+            x_dists.append(self.vrp.calDist(x[i], x[i+1]))
+        
+        for i in range(l-1):
+            if y[i+1] == 0:
+                continue
+            y_edges.append((y[i], y[i+1]))
+            y_dists.append(self.vrp.calDist(y[i], y[i+1]))'''
+
+
 
     def calFitness(self, foodSource):
         cost = self.searchSpace.costFunc(foodSource)
@@ -227,9 +190,9 @@ class ABC:
         df['cum_sum'] = df.Fitness.cumsum() # cumulative sum
         df['cum_perc'] = 100*df.cum_sum/df.Fitness.sum()
 
-        for i in range(2):
-            selectionResults.append(i)
-        for i in range(self.k-2):
+        for i in range(3):
+            selectionResults.append(sorted_ind[i])
+        for i in range(self.k-3):
             pick = 100*random.random()
             for j in range(self.k-1):
                 if pick <= df.iat[j, 3] and pick > df.iat[j+1,3]:
@@ -240,42 +203,55 @@ class ABC:
 
     def process(self, maxIteration, maxLimit, input_file): 
         # Assume the number of employed bees is equal to the number of food sources
-        #self.vrp.readData('./data/problem_8.txt')
+        # 1), 2) Init k solution and compute fitness for each solution xi
         self.vrp.readData(input_file)
-        self.listOfFoodSources = self.vrp.initSols()
+        self.listOfFoodSources = self.vrp.initSols() # denotes F
+        
         print('[+] Initial solution')
         for foodsource in self.listOfFoodSources:
             print(foodsource)
         print('[+] Final solution')
+
+        # 3)
         limits = [0] * self.k
+        
+        # 4)
         for itera in range(maxIteration):
+            #print('[+] Iteration: ', str(itera))
             # (a)
             for (i, foodSource) in enumerate(self.listOfFoodSources):
-                # Apply a neigborhood operator
-                x_tilde = swapReverse_neighborOps(foodSource)
+                # i) Apply a neigborhood operator
+                x_tilde = swapReverse_neighborOps(foodSource, self.m)
+                
+                # ii) Replace
                 old_fit = self.calFitness(foodSource)
                 new_fit = self.calFitness(x_tilde)
-                # Replace
                 if new_fit > old_fit:
                     #print('yeah1')
                     self.listOfFoodSources[i] = x_tilde
+                    limits[i] = 0
+                else:
+                    limits[i] += 1
             
-            # (b)
+            # b) Init colection of food source G
             G = [[]] * self.k # list of neighbor sets of foodsource i 
 
-            # (c)
+            # (c) i)
             listOfProbs = self.probOfFoodSources() # Not fitness but probability
             selection = self.rouletteWheel(listOfProbs)
+            # (c) ii)
             for index in selection:
-                x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index])
+                x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index], self.m)
                 #print(type(index))
                 #x_tilde = list(x_tilde)
                 #if G[index].get(x_tilde) == None:
+                # d) update
                 G[index].append(x_tilde)
 
-            # (d)
+            # e)
             for (i, foodSource) in enumerate(self.listOfFoodSources):
                 if len(G[i]) != 0:
+                    # i) Find x_cap
                     maxFitness = -1
                     maxNeighbor = -1
                     for neighbor in G[i]: # neighbor is a numpy array of solution representation
@@ -283,10 +259,14 @@ class ABC:
                         if fit > maxFitness:
                             maxFitness = fit
                             maxNeighbor = neighbor
+                    # ii) Replace the x_tildle_j has max limit in F
                     if maxFitness > self.calFitness(foodSource):
                         #print('yeah2')
-                        self.listOfFoodSources[i] = maxNeighbor
-                        limits[i] = 0
+                        # Find x_tildel that has max limit in F
+                        max_j = np.argmax(limits)
+                        if self.calFitness(self.listOfFoodSources[max_j]) < maxFitness:
+                            self.listOfFoodSources[max_j] = maxNeighbor
+                            limits[i] = 0
                     else:
                         limits[i] += 1
 
@@ -296,7 +276,7 @@ class ABC:
                 print('[+] foodsource ' + str(i) + ': ', foodsource)'''
             #print()
 
-            # (e)
+            # f)
             for (i, foodSource) in enumerate(self.listOfFoodSources):       
                 if limits[i] == maxLimit:
                     muta_vec = swap_ops(self.listOfFoodSources[i])
@@ -316,7 +296,6 @@ class ABC:
             else:
                 self.searchSpace.updateAlpha(False) # multiply
             
-
         return self.listOfFoodSources
 
 def ParseArguments():
