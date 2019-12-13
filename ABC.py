@@ -5,7 +5,7 @@ random.seed(2)
 
 from initialization import VRP
 from searchSpace import SearchSpace
-from swapOps import swap_ops,swapReverse_neighborOps
+from swapOps import swap_ops,swapReverse_neighborOps, pick_random_op
 
 import numpy as np
 import pandas as pd
@@ -14,6 +14,7 @@ import operator
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import argparse
+from inspect import signature
 
 '''def swapReverse_neighborOps(arr):
     while True:
@@ -220,13 +221,20 @@ class ABC:
         # 3)
         limits = [0] * self.k
         
-        # 4)
+        # 4e
         for itera in range(maxIteration):
             #print('[+] Iteration: ', str(itera))
             # (a)
             for (i, foodSource) in enumerate(self.listOfFoodSources):
                 # i) Apply a neigborhood operator
-                x_tilde = swapReverse_neighborOps(foodSource, self.m)
+                # print(foodSource)
+                random_op = pick_random_op()
+                if len(signature(random_op).parameters) == 1:
+                    x_tilde = random_op(foodSource)
+                else:
+                    x_tilde = random_op(foodSource, self.m)
+                
+                # x_tilde = swapReverse_neighborOps(foodSource, self.m)
                 
                 # ii) Replace
                 old_fit = self.calFitness(foodSource)
@@ -246,7 +254,12 @@ class ABC:
             selection = self.rouletteWheel(listOfProbs)
             # (c) ii)
             for index in selection:
-                x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index], self.m)
+                random_op = pick_random_op()
+                if len(signature(random_op).parameters) == 1:
+                    x_tilde = random_op(self.listOfFoodSources[index])
+                else:
+                    x_tilde = random_op(self.listOfFoodSources[index], self.m)
+                # x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index], self.m)
                 #print(type(index))
                 #x_tilde = list(x_tilde)
                 #if G[index].get(x_tilde) == None:
@@ -286,7 +299,12 @@ class ABC:
             # f)
             for (i, foodSource) in enumerate(self.listOfFoodSources):       
                 if limits[i] == maxLimit:
-                    muta_vec = swap_ops(self.listOfFoodSources[i])
+                    random_op = pick_random_op()
+                    if len(signature(random_op).parameters) == 1:
+                        muta_vec = random_op(self.listOfFoodSources[i])
+                    else:
+                        muta_vec = random_op(self.listOfFoodSources[i], self.m)
+                    # muta_vec = swap_ops(self.listOfFoodSources[i])
                     old_fit = self.calFitness(self.listOfFoodSources[i])
                     new_fit = self.calFitness(muta_vec)
                     if new_fit > old_fit:

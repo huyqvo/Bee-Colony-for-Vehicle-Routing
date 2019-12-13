@@ -66,6 +66,7 @@ class SearchSpace:
             listOfDists.append(0)
         dist += self.vrp.calDist(x[l-1], 0)
 
+        # OUR MODIFICATION: Add extra different distane between vehicles.
         diff = 0
         l2 = len(listOfDists)
         for i in range(l2-1):
@@ -75,7 +76,7 @@ class SearchSpace:
         violationWeight = self.getViolationWeight(x)
 
         return dist + self.alpha*violationWeight + 0.1*diff
-        #return dist + self.alpha*violationWeight
+        # return dist + self.alpha*violationWeight
         
 
     def updateAlpha(self, divOrMul):
