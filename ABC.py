@@ -95,12 +95,18 @@ class ABC:
         for i in range(l-1):
             if solution[i] == 0:
                 colo_index += 1
-        
+
             x1 = [infoList[solution[i]][0], infoList[solution[i+1]][0]]
             y1 = [infoList[solution[i]][1], infoList[solution[i+1]][1]]
             plt.plot(x1, y1, color=tuple(colors[colo_index % len(colors)]), linestyle='-')
         
-        #plt.plot(30, 40, color=colo[colo_index], linestyle='-')
+        listOfWeights = []
+        weight = 0
+        for i in range(l):
+            weight += infoList[solution[i]][2]*51   
+            if i==l-1 or solution[i+1] == 0:
+                listOfWeights.append(weight)
+                weight = 0
 
         plt.axis([0,80,0,80])
         
@@ -112,7 +118,7 @@ class ABC:
         listOfPatches = []
 
         for i in range(vehicle_n):
-            patch = mpatches.Patch(color=tuple(colors[i % len(colors)]), label='Path length = '+str(listOfDists[i]))
+            patch = mpatches.Patch(color=tuple(colors[i % len(colors)]), label='Length = ' + str(round(listOfDists[i], 2)) + ', Weight = ' + str(listOfWeights[i]))
             listOfPatches.append(patch)
 
         # Add legend for depot
@@ -130,7 +136,7 @@ class ABC:
         print('Saved image')
         fig = plt.gcf()
         fig.set_size_inches(18.5, 10.5)
-        plt.savefig('./images/output.png', dpi=100)
+        plt.savefig('./images/output.png', dpi=100, bbox_inches='tight')
         plt.show()
         
     '''def breed(self, x, y):
@@ -244,7 +250,7 @@ class ABC:
                     self.listOfFoodSources[i] = x_tilde
                     limits[i] = 0
                 else:
-                    limits[i] += 1
+                    limits[i] += 1           
             
             # b) Init colection of food source G
             G = [[]] * self.k # list of neighbor sets of foodsource i 
