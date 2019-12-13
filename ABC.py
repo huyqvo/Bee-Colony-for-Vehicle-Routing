@@ -331,7 +331,10 @@ def ParseArguments():
                         default=0, help="Limit (~50n according to paper)")
     
     return parser.parse_args()
-    
+
+# Parse Args
+args = ParseArguments()
+
 def main(args):
     # limit = 50n, m >= 3, (n+m) >= 7
     n = args.num_customers
@@ -341,19 +344,27 @@ def main(args):
     alpha = args.alpha # according to paper
     theta = args.theta # according to the paper
     
+    max_iteration = args.max_iteration
+    limit = args.limit
+
     if args.num_employedBees == 0:
-        employedBees = k
+        employedBees = k # according to paper
     if args.num_onlookers == 0:
-        onlookers = k
+        onlookers = k # according to paper
+    if args.max_iteration == 0:
+        max_iteration = 2000 * n # according to paper
+    if args.limit == 0:
+        limit = 50 * n # according to paper
 
     #VRPProb = VRP(n, m, k)
     abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers, args.input_file)
 
-    listOfFoodSources = abc.process(args.max_iteration, args.limit, args.input_file)
-    
+    listOfFoodSources = abc.process(max_iteration, limit, args.input_file)
+    # Print final foodSource
     for foodSource in listOfFoodSources:
         print(foodSource)
 
+    # Find solution x_i that has max fittness
     chosenInd = 0
     maxVal = abc.calFitness(listOfFoodSources[chosenInd])
     for (i,foodsource) in enumerate(listOfFoodSources):
@@ -361,7 +372,7 @@ def main(args):
         if val > maxVal:
             chosenInd = i
             maxVal = val
-
+    # Visualize final solution
     abc.visualize(listOfFoodSources[chosenInd])
     '''VRPProb.readData('D:\\University\\Nam 4 HK 1\\Soft computing\\DoAn_CK\\code\\data\\Problem_8.txt')
     solList = VRPProb.initSols()
@@ -370,8 +381,6 @@ def main(args):
         print('[+] normal: ', sol)
         print('[+] swapReverse: ', swapReverse_neighborOps(sol))'''
 
-# Parse Args
-args = ParseArguments()
 
 if __name__ == "__main__":
     main(args)
