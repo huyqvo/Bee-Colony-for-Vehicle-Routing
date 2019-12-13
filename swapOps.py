@@ -1,15 +1,15 @@
 import random
 import numpy as np
 
-CONST_REVERSE = 0
-CONST_SWAP = 1
-CONST_SWAP_REVERSE = 2
+CONST_SWAP = 0
+CONST_SWAP_REVERSE = 1
+CONST_REVERSE = 2
 
 def pick_random_op():
     """
     Pick randomly 1 operator among 3
     """
-    randnum = random.randint(0, 2)
+    randnum = random.randint(0, 1)
     if randnum == CONST_REVERSE:
         return reverse_subseqence
     elif randnum == CONST_SWAP:
@@ -41,13 +41,13 @@ def reverse_subseqence(arr):
         res = []
         # First postion doesnt change
         res.append(0)
-        # extend the first subsequence
+        # extend the first subsequence from first_index to the end of arr (not reverse)
         res.extend(arr[first_index:len(arr)])
         # extend the remaining subsequence between the first and next depot
         res.extend(arr[second_index+1:depot_indices[next_depot_index]])
         # extend the middle subsequence
         res.extend(arr[depot_indices[next_depot_index]:first_index])
-        # extend the second subsequence at the tail
+        # extend the reversed second subsequence at the tail
         res.extend(np.flip(arr[depot_indices[random_depot_index]+1:second_index+1]))
 
         arr = np.array(res)
@@ -88,7 +88,7 @@ def swapReverse_neighborOps(arr, m):
     '''
         Swap reverse of 2 subsequences
     '''
-    print(arr)
+    # print(arr)
     zero_pos = np.where(arr==0)[0]
     zero_pos = zero_pos[1:]
     zero_pos = zero_pos.reshape(m-1)
@@ -145,8 +145,9 @@ def swapReverse_neighborOps(arr, m):
 
     return new_arr
 
-# for i in range(1000):
-#     res = reverse_subseqence(np.array([0, 4, 1, 0, 2, 7, 5, 0, 3, 6]))
+# for i in range(100000):
+#     res = reverse_subseqence(np.array([0,  5, 49, 30, 10, 39, 33, 45, 15, 44, 42, 17,  0, 23, 24, 18,  4, 41, 40, 19, 37, 12,  0, 27,
+#  8, 26, 31, 28,  3, 36, 35, 20, 22, 32,  0, 47, 25, 43,  7, 48,  1,  2, 11,  0,  6, 14, 13, 46, 16, 21, 29, 50, 34,  9, 38]))
 #     for j in range(len(res)-1):
 #         if res[j] == res[j + 1]:
 #             print(True)
