@@ -207,10 +207,10 @@ class ABC:
         print(df['cum_sum'])
         print(df['cum_perc'])'''
 
-        for i in range(3):
+        for i in range(self.elitism_size):
             #print('[+] First loop: ', i)
             selectionResults.append(sorted_ind[i])
-        for i in range(self.k-3):
+        for i in range(self.k-self.elitism_size):
             #print('[+] Second loop: ', i)
             pick = 100*random.random()
             #print('pick: ', pick)
