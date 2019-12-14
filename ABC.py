@@ -50,7 +50,7 @@ from inspect import signature
 
 
 class ABC:
-    def __init__(self, n, m, k, c, alpha, theta, employedBees, onlookers, input_file): # Is the number of employedBees equal k?
+    def __init__(self, n, m, k, c, alpha, theta, employedBees, onlookers, input_file, elitism_rate): # Is the number of employedBees equal k?
         # The number of employed bees and the number of onlookers are set to be equal
         # the number of food sources (set to 25 in the paper)
         self.k = k
@@ -60,6 +60,7 @@ class ABC:
         self.searchSpace = SearchSpace(n,m,k,c,alpha,theta, input_file)
         self.employedBees = employedBees
         self.onlookers = onlookers
+        self.elitism_size = int(np.ceil(self.k * elitism_rate))
         #self.cumulated_f = 0 # cumulated f at iteration t
         self.listOfFoodSources = []
 
@@ -202,9 +203,9 @@ class ABC:
         df['cum_sum'] = df.Fitness.cumsum() # cumulative sum
         df['cum_perc'] = 100*df.cum_sum/df.Fitness.sum()
 
-        for i in range(3):
+        for i in range(self.elitism_size):
             selectionResults.append(sorted_ind[i])
-        for i in range(self.k-3):
+        for i in range(self.k-self.elitism_size):
             pick = 100*random.random()
             for j in range(self.k-1):
                 if pick <= df.iat[j, 3] and pick > df.iat[j+1,3]:
@@ -353,6 +354,9 @@ def ParseArguments():
                         default=20000, help="Maximum iteration")
     parser.add_argument('-lim', "--limit", type=int, 
                         default=0, help="Limit (~50n according to paper)")
+    parser.add_argument('-el', "--elitism_rate", type=float, 
+                        default=0.2, help="Elitism rate")
+                        
     
     return parser.parse_args()
 
@@ -370,6 +374,7 @@ def main(args):
     
     max_iteration = args.max_iteration
     limit = args.limit
+    elitism_rate = args.elitism_rate
 
     if args.num_employedBees == 0:
         employedBees = k # according to paper
@@ -379,9 +384,9 @@ def main(args):
         max_iteration = 2000 * n # according to paper
     if args.limit == 0:
         limit = 50 * n # according to paper
-
+    
     #VRPProb = VRP(n, m, k)
-    abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers, args.input_file)
+    abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers, args.input_file, elitism_rate)
 
     listOfFoodSources = abc.process(max_iteration, limit, args.input_file)
     # Print final foodSource

@@ -16,6 +16,15 @@ def pick_random_op():
         return swap_ops
     else:
         return swapReverse_neighborOps
+
+def check_consecutive_dipot(arr):
+    """
+    Check whether arr has 2 consecutive dipot
+    """
+    for j in range(len(arr)-1):
+        if arr[j] == arr[j + 1]:
+            return True
+    return False    
     
 def reverse_subseqence(arr):
     """
@@ -51,7 +60,7 @@ def reverse_subseqence(arr):
         res.extend(np.flip(arr[depot_indices[random_depot_index]+1:second_index+1]))
 
         arr = np.array(res)
-    # if it is the last depot in depot
+    # if it is the last depot in depot_indices
     elif random_depot_index == len(depot_indices) - 1:
         next_depot_pos = len(arr) # position in arr
         start_index = random.randint(depot_indices[prev_depot_index]+1, depot_indices[random_depot_index]-1)
@@ -143,11 +152,19 @@ def swapReverse_neighborOps(arr, m):
     new_arr = np.concatenate((new_arr, arr1))
     new_arr = np.concatenate((new_arr, np.copy(arr[e2+1:])))
 
-    return new_arr
+    # for j in range(len(new_arr)-1):
+    #     if new_arr[j] == new_arr[j + 1]:
+    #         print(arr)
+    #         print(new_arr)
+    #         print(new_arr[j], new_arr[j + 1])
+    #         print(True)
+    #         break
 
+    return new_arr
+# res = np.array([0,  5, 49, 30, 10, 39, 33, 45, 15, 44, 42, 17,  0, 23, 24, 18,  4, 41, 40, 19, 37, 12,  0, 27,
+#                 8, 26, 31, 28,  3, 36, 35, 20, 22, 32,  0, 47, 25, 43,  7, 48,  1,  2, 11,  0,  6, 14, 13, 46, 16, 21, 29, 50, 34,  9, 38])
 # for i in range(100000):
-#     res = reverse_subseqence(np.array([0,  5, 49, 30, 10, 39, 33, 45, 15, 44, 42, 17,  0, 23, 24, 18,  4, 41, 40, 19, 37, 12,  0, 27,
-#  8, 26, 31, 28,  3, 36, 35, 20, 22, 32,  0, 47, 25, 43,  7, 48,  1,  2, 11,  0,  6, 14, 13, 46, 16, 21, 29, 50, 34,  9, 38]))
+#     res = reverse_subseqence(res)
 #     for j in range(len(res)-1):
 #         if res[j] == res[j + 1]:
 #             print(True)
