@@ -1,9 +1,11 @@
 # Bee-Colony-for-Vehicle-Routing
 **Artificial Bee Colony algorithm for Vehicle Routing Problem**
 
+Variant: Capacitated Vehicle Routing Problem (CVRP)
+
 ---
 
-**Members**
+## 1. Members
 
 1612174 - Phùng Tiến Hào
 
@@ -11,38 +13,35 @@
 
 ---
 
-> Vehicle routing with two constraints: distance and customer demand (weight).
+> CVRP with two constraints: distance and customer demand (weight).
 
 ---
 
-**How to run**
+## 2. How to run
 
-<div class="text-white bg-blue mb-2">
-  
-Run: python ABC.py
+- Get help:
+```
+python ABC.py -h
+```
 
--Input n: the number of customers
+- Examle:
+```
+python ABC.py -f ./data/problem_8.txt -n 50 -m 5 -k 25 -c 6000 -iter 20000 -lim 50
+```
 
--Input m: the number of vehicles
+where:
+- f: input file
+- n: the number of customers
+- m: the number of vehicles
+- k: the number of output solutions
+- c: the capacity of each vehicle
+- iter: the number of iterations
+- lim: the permissaile limit iteration of each food source which quality has not been improved. 
 
--Input k: the number of output solutions
-
--Input c: the capacity of each vehicle
-
--Input loop: the number of iterations
-
--Input limit: set limit for step (e)
-
--Input dataset path: path to dataset file
-</div>
-  
----
-
-**Standard benchmark** 
+## 3. Standard benchmark 
 
 Problem 8 and problem 9 in [2]
 
----
 
 **Results**
 
@@ -55,7 +54,7 @@ Problem 8 and problem 9 in [2]
 ![](images/50_5_20_8000_50000_50_0.1diff.png)
 
 
-**References**
+## References
 
 [[1] Szeto, Wai Yuen, Yongzhong Wu, and Sin C. Ho. "An artificial bee colony algorithm for the capacitated vehicle routing problem." European Journal of Operational Research 215.1 (2011): 126-135.](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.457.8027&rep=rep1&type=pdf) 
 
