@@ -202,13 +202,22 @@ class ABC:
         df = pd.DataFrame(np.array(listOfProbs), columns=["Index","Fitness"])
         df['cum_sum'] = df.Fitness.cumsum() # cumulative sum
         df['cum_perc'] = 100*df.cum_sum/df.Fitness.sum()
+        '''print(df)
+        print(df['Fitness'])
+        print(df['cum_sum'])
+        print(df['cum_perc'])'''
 
-        for i in range(self.elitism_size):
+        for i in range(3):
+            #print('[+] First loop: ', i)
             selectionResults.append(sorted_ind[i])
-        for i in range(self.k-self.elitism_size):
+        for i in range(self.k-3):
+            #print('[+] Second loop: ', i)
             pick = 100*random.random()
-            for j in range(self.k-1):
-                if pick <= df.iat[j, 3] and pick > df.iat[j+1,3]:
+            #print('pick: ', pick)
+            for j in range(self.k):
+                #if pick <= df.iat[j, 3] and pick > df.iat[j+1,3]:
+                if pick <= df.iat[j, 3]:
+                    #print('[+] j: ', j)
                     selectionResults.append(sorted_ind[j])
                     break
 
