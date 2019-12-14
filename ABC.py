@@ -50,14 +50,14 @@ from inspect import signature
 
 
 class ABC:
-    def __init__(self, n, m, k, c, alpha, theta, employedBees, onlookers, input_file, elitism_rate): # Is the number of employedBees equal k?
+    def __init__(self, n, m, k, c, alpha, theta, gamma, employedBees, onlookers, input_file, elitism_rate): # Is the number of employedBees equal k?
         # The number of employed bees and the number of onlookers are set to be equal
         # the number of food sources (set to 25 in the paper)
         self.k = k
         self.n = n
         self.m = m
         self.vrp = VRP(n,m,k)
-        self.searchSpace = SearchSpace(n,m,k,c,alpha,theta, input_file)
+        self.searchSpace = SearchSpace(n,m,k,c,alpha,theta,gamma,input_file)
         self.employedBees = employedBees
         self.onlookers = onlookers
         self.elitism_size = int(np.ceil(self.k * elitism_rate))
@@ -346,6 +346,8 @@ def ParseArguments():
                         default=0.1, help="Alpha")
     parser.add_argument('-the', "--theta", type=float, 
                         default=0.001, help="Theta")
+    parser.add_argument('-ga', "--gamma", type=float, 
+                        default=0.1, help="Gamma")
     parser.add_argument('-emp', "--num_employedBees", type=int, 
                         default=0, help="Number of employed bees (Equal to k according to paper)")
     parser.add_argument('-onl', "--num_onlookers", type=int, 
@@ -371,7 +373,8 @@ def main(args):
     c = args.capacity
     alpha = args.alpha # according to paper
     theta = args.theta # according to the paper
-    
+    gamma = args.gamma # out modification
+
     max_iteration = args.max_iteration
     limit = args.limit
     elitism_rate = args.elitism_rate
@@ -386,7 +389,8 @@ def main(args):
         limit = 50 * n # according to paper
     
     #VRPProb = VRP(n, m, k)
-    abc = ABC(n,m,k,c,alpha,theta,employedBees,onlookers, args.input_file, elitism_rate)
+    abc = ABC(n, m, k, c, alpha, theta, gamma, employedBees, 
+              onlookers, args.input_file, elitism_rate)
 
     listOfFoodSources = abc.process(max_iteration, limit, args.input_file)
     # Print final foodSource

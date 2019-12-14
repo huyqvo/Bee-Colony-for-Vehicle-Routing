@@ -2,7 +2,7 @@ import numpy as np
 from initialization import VRP
 
 class SearchSpace:
-    def __init__(self, n, m, k, c, alpha, theta, input_file): 
+    def __init__(self, n, m, k, c, alpha, theta, gamma, input_file): 
         '''
             n: so luong khach hang
             m: so luong phuong tien van chuyen 
@@ -11,6 +11,7 @@ class SearchSpace:
         '''
         self.alpha = float(alpha)
         self.theta = float(theta) # divided by
+        self.gamma = float(gamma)
         self.c = c
         self.vrp = VRP(n, m, k)
         self.vrp.readData(input_file)
@@ -75,12 +76,15 @@ class SearchSpace:
 
         violationWeight = self.getViolationWeight(x)
 
-        return dist + self.alpha*violationWeight + 0.1*diff
+        return dist + self.alpha*violationWeight + self.gamma*diff
         # return dist + self.alpha*violationWeight
         
 
     def updateAlpha(self, divOrMul):
         if divOrMul == True:
             self.alpha /= 1 + self.theta
+            # self.gamma /= 1 + self.gamma
         else:
             self.alpha *= 1 + self.theta
+            # self.gamma *= 1 + self.gamma
+            
