@@ -6,6 +6,7 @@ random.seed(2)
 from initialization import VRP
 from searchSpace import SearchSpace
 from swapOps import swap_ops,swapReverse_neighborOps, pick_random_op
+from breed import popBreed
 
 import numpy as np
 import pandas as pd
@@ -228,6 +229,7 @@ class ABC:
         # 1), 2) Init k solution and compute fitness for each solution xi
         self.vrp.readData(input_file)
         self.listOfFoodSources = self.vrp.initSols() # denotes F
+        infoList = self.vrp.getInfoList()
         
         print('[+] Initial solution')
         for foodsource in self.listOfFoodSources:
@@ -268,8 +270,9 @@ class ABC:
             # (c) i)
             listOfProbs = self.probOfFoodSources() # Not fitness but probability
             selection = self.rouletteWheel(listOfProbs)
-            # (c) ii)
-            for index in selection:
+            # (c) ii) Unblock ORIGINAL and block GENETIC to run BEE algo alone
+            # ----------------------------ORIGINAL-----------------------------
+            '''for index in selection:
                 random_op = pick_random_op()
                 if len(signature(random_op).parameters) == 1:
                     x_tilde = random_op(self.listOfFoodSources[index])
@@ -280,7 +283,26 @@ class ABC:
                 #x_tilde = list(x_tilde)
                 #if G[index].get(x_tilde) == None:
                 # d) update
+                G[index].append(x_tilde)'''
+            # ---------------------------GENETIC-------------------------------
+            newListOfFoodSources = []
+            for ind in selection:
+                newListOfFoodSources.append(self.listOfFoodSources[ind])
+            #breed
+            newListOfFoodSources = popBreed(newListOfFoodSources.copy(), infoList)
+            for (index, foodsource) in enumerate(newListOfFoodSources):
+                random_op = pick_random_op()
+                if len(signature(random_op).parameters) == 1:
+                    x_tilde = random_op(foodsource)
+                else:
+                    x_tilde = random_op(foodsource, self.m)
+                # x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index], self.m)
+                #print(type(index))
+                #x_tilde = list(x_tilde)
+                #if G[index].get(x_tilde) == None:
+                # d) update
                 G[index].append(x_tilde)
+            # ---------------------------------------------------------------
 
             # e)
             for (i, foodSource) in enumerate(self.listOfFoodSources):
@@ -326,6 +348,9 @@ class ABC:
                     if new_fit > old_fit:
                         self.listOfFoodSources[i] = muta_vec
                         limits[i] = 0 # Paper don't have this?
+
+            # (GENETIC)
+            #self.listOfFoodSources = popBreed(self.listOfFoodSources, infoList)
 
             # Update alpha
             cnt = 0

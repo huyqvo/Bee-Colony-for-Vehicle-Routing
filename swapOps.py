@@ -133,14 +133,23 @@ def swapReverse_neighborOps(arr, m):
     print(zero_n)
     print(s1, ' ', e1, ' ', s2, ' ', e2)'''
 
-    #print('s1, zero_n[0]-1: ', s1, zero_n[0]-2)
-    start1 = random.randint(s1, zero_n[0]-2)
+    #print('s1, zero_n[0]-2: ', s1, zero_n[0]-2)
+    try:
+        start1 = random.randint(s1, zero_n[0]-2)
+    except:
+        print(arr)
+        print('s1, zero_n[0]-2: ', s1, zero_n[0]-2)
     #print('zero_n[0]+1, e1: ', zero_n[0]+2, e1)
     end1 = random.randint(zero_n[0]+2, e1)
     #print('s2, zero_n[1]-1: ', s2, zero_n[1]-2)
     start2 = random.randint(s2, zero_n[1]-2)
     #print('zero_n[1]+1, e2: ', zero_n[1]+2, e2)
-    end2 = random.randint(zero_n[1]+2, e2)
+    try:
+        end2 = random.randint(zero_n[1]+2, e2)
+    except:
+        print(arr)
+        print('zero_n[1]+2, e2: ', zero_n[1]+2, e2)
+
     s1 = start1
     e1 = end1
     s2 = start2
