@@ -24,11 +24,15 @@ Variant: Capacitated Vehicle Routing Problem (CVRP)
 python ABC.py -h
 ```
 
-- Examle:
+- Run Bee
 ```
-python ABC.py -f ./data/problem_8.txt -n 50 -m 5 -k 25 -c 6000 -iter 20000 -lim 50
+python ABC.py -f ./data/problem_8.txt -n 50 -m 5 -k 25 -c 8000 -iter 20000 -lim 50
 ```
 
+- Run Bee with Genetic algorithm
+```
+python ABC.py -f ./data/problem_8.txt -n 50 -m 5 -k 25 -c 8000 -iter 20000 -lim 50 -ft_ga
+```
 where:
 - f: input file
 - n: the number of customers
@@ -36,7 +40,8 @@ where:
 - k: the number of output solutions
 - c: the capacity of each vehicle
 - iter: the number of iterations
-- lim: the permissaile limit iteration of each food source which quality has not been improved. 
+- lim: the permissaile limit iteration of each food source which quality has not been improved
+- ft_ga: enable to combine bee and ga.
 
 ## 3. Standard benchmark 
 
