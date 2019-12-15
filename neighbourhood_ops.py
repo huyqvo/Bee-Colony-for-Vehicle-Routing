@@ -9,8 +9,8 @@ def pick_random_op():
     """
     Pick randomly 1 operator among 3
     """
-    # randnum = random.randint(0, 1)
-    randnum = random.choice([0, 2])
+    randnum = random.randint(0, 1)
+    # randnum = random.choice([0, 2])
     if randnum == CONST_REVERSE:
         return reverse_subseqence
     elif randnum == CONST_SWAP:
