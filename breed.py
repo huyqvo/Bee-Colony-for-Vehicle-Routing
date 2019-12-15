@@ -127,12 +127,16 @@ def breed(x, y, infoList):
     return np.asarray(child)
 
 def popBreed(matingpool, infoList, eliteSize=2):
+    """
+    Perform breading to form new population
+    """
     #print('[+] len(matingpool): ', len(matingpool))
     children = []
-    length = len(matingpool) - eliteSize # why minus here?
+    length = len(matingpool) - eliteSize 
     pool = random.sample(matingpool, len(matingpool)) # sampling without replacement
 
-    for i in range(0,eliteSize): # old children?
+    # Keep elitism indivs
+    for i in range(0,eliteSize):
         #print('[+] i: ', i)
         children.append(pool[i])
     

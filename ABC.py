@@ -5,8 +5,8 @@ random.seed(2)
 
 from initialization import VRP
 from searchSpace import SearchSpace
-from swapOps import swap_ops,swapReverse_neighborOps, pick_random_op
-from breed import popBreed
+from neighbourhood_ops import swap_ops, swapReverse_neighborOps, pick_random_op
+from breed import popBreed, breed
 
 import numpy as np
 import pandas as pd
@@ -51,7 +51,7 @@ from inspect import signature
 
 
 class ABC:
-    def __init__(self, n, m, k, c, alpha, theta, gamma, employedBees, onlookers, input_file, elitism_rate): # Is the number of employedBees equal k?
+    def __init__(self, n, m, k, c, alpha, theta, gamma, employedBees, onlookers, input_file, elitism_rate, feat_ga): # Is the number of employedBees equal k?
         # The number of employed bees and the number of onlookers are set to be equal
         # the number of food sources (set to 25 in the paper)
         self.k = k
@@ -64,6 +64,7 @@ class ABC:
         self.elitism_size = int(np.ceil(self.k * elitism_rate))
         #self.cumulated_f = 0 # cumulated f at iteration t
         self.listOfFoodSources = []
+        self.feat_ga = feat_ga
 
     def visualize(self, solution):
         infoList = self.vrp.getInfoList()
@@ -224,6 +225,39 @@ class ABC:
 
         return selectionResults # list of onlookers' food source
 
+    def selectOneFromRouletteWheel(self, df, sorted_ind):
+        pick = 100*random.random()
+        #print('pick: ', pick)
+        for j in range(self.k):
+            #if pick <= df.iat[j, 3] and pick > df.iat[j+1,3]:
+            if pick <= df.iat[j, 3]:
+                #print('[+] j: ', j)
+                return sorted_ind[j]
+
+    def breeding(self, listOfProbs, infoList):
+        sorted_ind = sorted(listOfProbs, key=listOfProbs.get, reverse = True)
+        listOfProbs = sorted(listOfProbs.items(), key=operator.itemgetter(1), reverse=True)
+        selectionResults = [] # list of indices of food sources for corresponding onlookers
+        df = pd.DataFrame(np.array(listOfProbs), columns=["Index","Fitness"])
+        df['cum_sum'] = df.Fitness.cumsum() # cumulative sum
+        df['cum_perc'] = 100*df.cum_sum/df.Fitness.sum()
+        
+        children = []
+        length = self.k - self.elitism_size 
+
+        # Keep elitism indivs
+        for i in range(0, self.elitism_size):
+            #print('[+] i: ', i)
+            children.append(self.listOfFoodSources[sorted_ind[i]])
+        
+        for i in range(0, length): # new children
+            father = self.listOfFoodSources[self.selectOneFromRouletteWheel(df, sorted_ind)]
+            mother = self.listOfFoodSources[self.selectOneFromRouletteWheel(df,sorted_ind)]
+            child = breed(father, mother, infoList)
+            children.append(child)
+
+        return children # len(children) = self.k
+
     def process(self, maxIteration, maxLimit, input_file): 
         # Assume the number of employed bees is equal to the number of food sources
         # 1), 2) Init k solution and compute fitness for each solution xi
@@ -269,41 +303,61 @@ class ABC:
 
             # (c) i)
             listOfProbs = self.probOfFoodSources() # Not fitness but probability
-            selection = self.rouletteWheel(listOfProbs)
             # (c) ii) Unblock ORIGINAL and block GENETIC to run BEE algo alone
-            # ----------------------------ORIGINAL-----------------------------
-            '''for index in selection:
-                random_op = pick_random_op()
-                if len(signature(random_op).parameters) == 1:
-                    x_tilde = random_op(self.listOfFoodSources[index])
-                else:
-                    x_tilde = random_op(self.listOfFoodSources[index], self.m)
-                # x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index], self.m)
-                #print(type(index))
-                #x_tilde = list(x_tilde)
-                #if G[index].get(x_tilde) == None:
-                # d) update
-                G[index].append(x_tilde)'''
-            # ---------------------------GENETIC-------------------------------
-            newListOfFoodSources = []
-            for ind in selection:
-                newListOfFoodSources.append(self.listOfFoodSources[ind])
-            #breed
-            newListOfFoodSources = popBreed(newListOfFoodSources.copy(), infoList)
-            for (index, foodsource) in enumerate(newListOfFoodSources):
-                random_op = pick_random_op()
-                if len(signature(random_op).parameters) == 1:
-                    x_tilde = random_op(foodsource)
-                else:
-                    x_tilde = random_op(foodsource, self.m)
-                # x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index], self.m)
-                #print(type(index))
-                #x_tilde = list(x_tilde)
-                #if G[index].get(x_tilde) == None:
-                # d) update
-                G[index].append(x_tilde)
-            # ---------------------------------------------------------------
-
+            if not self.feat_ga:
+                selection = self.rouletteWheel(listOfProbs)
+                # ----------------------------ORIGINAL-----------------------------
+                for index in selection:
+                    random_op = pick_random_op()
+                    if len(signature(random_op).parameters) == 1:
+                        x_tilde = random_op(self.listOfFoodSources[index])
+                    else:
+                        x_tilde = random_op(self.listOfFoodSources[index], self.m)
+                    # x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index], self.m)
+                    #print(type(index))
+                    #x_tilde = list(x_tilde)
+                    #if G[index].get(x_tilde) == None:
+                    # d) update
+                    G[index].append(x_tilde)
+            else:
+                # ---------------------------GENETIC-------------------------------
+                # selection = self.rouletteWheel(listOfProbs)
+                # # Copy selection from roulette wheel to newListOfFoodSources
+                # newListOfFoodSources = []
+                # for ind in selection:
+                #     newListOfFoodSources.append(self.listOfFoodSources[ind])
+                # # Breed
+                # newListOfFoodSources = popBreed(newListOfFoodSources.copy(), infoList)
+                # for (index, foodsource) in enumerate(newListOfFoodSources):
+                #     random_op = pick_random_op()
+                #     if len(signature(random_op).parameters) == 1:
+                #         x_tilde = random_op(foodsource)
+                #     else:
+                #         x_tilde = random_op(foodsource, self.m)
+                #     # x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index], self.m)
+                #     #print(type(index))
+                #     #x_tilde = list(x_tilde)
+                #     #if G[index].get(x_tSilde) == None:
+                #     # d) update
+                #     G[index].append(x_tilde)
+                # ---------------------------------------------------------------
+                # ----------------------------GENETIc 2 ---------------------------
+                newListOfFoodSources = self.breeding(listOfProbs, infoList)
+                for (index, foodsource) in enumerate(newListOfFoodSources):
+                    # print(type(foodsource))
+                    random_op = pick_random_op()
+                    if len(signature(random_op).parameters) == 1:
+                        x_tilde = random_op(foodsource)
+                    else:
+                        x_tilde = random_op(foodsource, self.m)
+                    # x_tilde = swapReverse_neighborOps(self.listOfFoodSources[index], self.m)
+                    #print(type(index))
+                    #x_tilde = list(x_tilde)
+                    #if G[index].get(x_tilde) == None:``
+                    # d) update
+                    G[index].append(x_tilde)
+                # -----------------------------------------------------------------
+                
             # e)
             for (i, foodSource) in enumerate(self.listOfFoodSources):
                 if len(G[i]) != 0:
@@ -392,7 +446,8 @@ def ParseArguments():
                         default=0, help="Limit (~50n according to paper)")
     parser.add_argument('-el', "--elitism_rate", type=float, 
                         default=0.2, help="Elitism rate")
-                        
+    parser.add_argument('-ft_ga', "--feat_ga", action="store_true", 
+                        help="Feat genetic algorithm (used breeding)")
     
     return parser.parse_args()
 
@@ -424,7 +479,7 @@ def main(args):
     
     #VRPProb = VRP(n, m, k)
     abc = ABC(n, m, k, c, alpha, theta, gamma, employedBees, 
-              onlookers, args.input_file, elitism_rate)
+              onlookers, args.input_file, elitism_rate, args.feat_ga)
 
     listOfFoodSources = abc.process(max_iteration, limit, args.input_file)
     # Print final foodSource
