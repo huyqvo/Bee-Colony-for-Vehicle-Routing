@@ -52,11 +52,15 @@ Problem 8 and problem 9 in [2]
 
 - Parameter set 1
 
-![](images/50_5_10_8000_50000_50.png)
+![](images/res2.png)
 
 - Parameter set 2
 
-![](images/50_5_20_8000_50000_50_0.1diff.png)
+![](images/res5.png)
+
+- Parameter set 3
+
+![](images/res11.png)
 
 
 ## References
